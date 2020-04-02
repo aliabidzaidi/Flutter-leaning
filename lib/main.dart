@@ -1,148 +1,106 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart';
 
-void main() => runApp(const MyApp());
+const String _name = "Abid Zaidi";
 
+void main() {
+  runApp(new WackoChatApp());
+}
 
-class MyApp extends StatelessWidget {
-  const MyApp();
-
+class WackoChatApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: const HomePage(),
-      theme: ThemeData(
-        primarySwatch: Colors.lightGreen,
-        buttonColor: Colors.lightGreen,
-        buttonTheme: const ButtonThemeData(
-          textTheme: ButtonTextTheme.primary
-        )
-      ),
+    return new MaterialApp(
+      title: "Wacko Messenger",
+      home: new ChatScreen(),
     );
   }
 }
 
-class HomePage extends StatelessWidget {
-  const HomePage({Key key}) : super(key: key);
+class ChatScreen extends StatefulWidget {
+  @override
+  State createState() => ChatScreenState();
+}
 
+class ChatScreenState extends State<ChatScreen> {
+  final TextEditingController _textController = new TextEditingController();
+  final List<ChatMessage> _messages = <ChatMessage>[];
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Available Kittens'),
+    return new Scaffold(
+      appBar: new AppBar(
+        title: Text('Wacko Messenger'),
       ),
-      body: ListView.builder(
-        itemCount: _kittens.length,
-        itemExtent: 60.0,
-        itemBuilder: _listItemBuilder,
-      ),
+      body: _buildTextComposer(),
     );
   }
 
-  Widget _listItemBuilder(BuildContext context, int index) {
-    return new GestureDetector(
-        onTap: () => showDialog(
-          context: context,
-          builder: (context) => _dialogBuilder(context, _kittens[index]),
-        ),
+  Widget _buildTextComposer() {
+    return new IconTheme(
+        data: new IconThemeData(color: Theme.of(context).accentColor),
         child: Container(
-          padding: EdgeInsets.only(left: 16.0, top: 20.0),
-          child: Text(
-          _kittens[index].Name,
-          style: Theme.of(context).textTheme.headline
-        )
-      )
-    );
-  }
-
-  Widget _dialogBuilder(BuildContext context, Kitten kitten) {
-    ThemeData localTheme = Theme.of(context);
-    return SimpleDialog(
-      contentPadding: EdgeInsets.zero,
-      children: <Widget>[
-        Image.asset(
-            kitten.ImageUrl,
-            fit: BoxFit.fill
-        ),
-        Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: <Widget>[
-              Text(
-                kitten.Name,
-                style: localTheme.textTheme.display1,
-              ),
-              SizedBox(height:8.0),
-              Text('${kitten.Age} months old',
-                style: localTheme.textTheme.subhead.copyWith(
-                  fontStyle: FontStyle.italic
+            margin: EdgeInsets.symmetric(horizontal: 8.0),
+            child: Row(
+              children: <Widget>[
+                new Flexible(
+                  child: new TextField(
+                    controller: _textController,
+                    onSubmitted: _handleSubmitted,
+                    decoration: new InputDecoration.collapsed(
+                        hintText: "Send a message"),
+                  ),
                 ),
-              ),
-              SizedBox(height:20.0),
-              Text(kitten.Description,
-                style: localTheme.textTheme.body1,
-              ),
-              Align(
-                alignment: Alignment.centerRight,
-                child: Wrap(
-                  children: <Widget>[
-                    FlatButton(
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                        },
-                        child: const Text('Ignore')
-                    ),
-                    SizedBox(width: 16.0),
-                    RaisedButton(
-                        onPressed: () {},
-                        child: const Text('Adopt')
-                    )
-                  ],
+                new Container(
+                  margin: const EdgeInsets.only(left: 4.0),
+                  child: new IconButton(
+                    icon: new Icon(Icons.send),
+                    onPressed: () => _handleSubmitted(_textController.text),
+                  ),
                 )
-              ),
+              ],
+            )));
+  }
 
-            ],
-          ),
-        )
-      ],
-    );
+  void _handleSubmitted(String text) {
+    print(text);
+    _textController.clear();
+    ChatMessage message = new ChatMessage(text: text);
+
+    setState(() {
+      _messages.insert(0, message);
+    });
+
   }
 }
 
-class Kitten{
-  final String Name;
-  final String Description;
-  final int Age;
-  final String ImageUrl;
-
-  Kitten({this.Name, this.Description, this.Age, this.ImageUrl});
+class ChatMessage extends StatelessWidget {
+  ChatMessage({this.text});
+  final String text;
+  @override
+  Widget build(BuildContext context) {
+    return new Container(
+        margin: const EdgeInsets.symmetric(vertical: 8.0),
+        child: new Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            //Circle Avatar
+            new Container(
+                margin: const EdgeInsets.only(right: 4.0),
+                child: new CircleAvatar(child: new Text(_name[0]))
+            ),
+            //Name + Message Column
+            new Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                //Name Text
+                new Text(_name, style: Theme.of(context).textTheme.subhead,),
+                //Message Text
+                new Container(
+                  margin: const EdgeInsets.only(top: 4.0),
+                  child: new Text(text)
+                )
+              ],
+            )
+          ],
+        ));
+  }
 }
-
-
-final List<Kitten> _kittens = <Kitten>[
-  Kitten(
-    Name: 'Fluffy Weezel',
-    Description: '4 months old, nails growing good, fat furr, also purrs, well trained, sleeps alot',
-    Age: 2,
-    ImageUrl: 'assets/cats/cat1.jpeg'
-  ),
-  Kitten(
-      Name: 'Skinny Hamlet',
-      Description: '4 months old, nails growing good, fat furr, also purrs, well trained, sleeps alot',
-      Age: 8,
-      ImageUrl: 'assets/cats/cat2.jpeg'
-  ),
-  Kitten(
-      Name: 'Rocky Pret',
-      Description: '4 months old, nails growing good, fat furr, also purrs, well trained, sleeps alot',
-      Age: 6,
-      ImageUrl: 'assets/cats/cat3.jpeg'
-  ),
-  Kitten(
-      Name: 'Nincy Zert',
-      Description: '4 months old, nails growing good, fat furr, also purrs, well trained, sleeps alot',
-      Age: 12,
-      ImageUrl: 'assets/cats/cat4.jpeg'
-  )
-];
