@@ -24,7 +24,7 @@ class ChatScreen extends StatefulWidget {
 class ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
   final TextEditingController _textController = new TextEditingController();
   final List<ChatMessage> _messages = <ChatMessage>[];
-
+  bool _isComposing = false;
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
@@ -61,6 +61,12 @@ class ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                 new Flexible(
                   child: new TextField(
                     controller: _textController,
+                    onChanged: (String text){
+                      setState(() {
+                        if(text.length > 0)
+                          _isComposing = true;
+                      });
+                    },
                     onSubmitted: _handleSubmitted,
                     decoration: new InputDecoration.collapsed(
                         hintText: "Send a message"),
@@ -70,7 +76,7 @@ class ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                   margin: const EdgeInsets.only(left: 4.0),
                   child: new IconButton(
                     icon: new Icon(Icons.send),
-                    onPressed: () => _handleSubmitted(_textController.text),
+                    onPressed: _isComposing ? () => _handleSubmitted(_textController.text): null,
                   ),
                 )
               ],
@@ -82,6 +88,9 @@ class ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
       return;
     }
     _textController.clear();
+    setState((){
+      _isComposing = false;
+    });
     ChatMessage message = new ChatMessage(
       text: text,
       animationController: new AnimationController(
@@ -127,23 +136,24 @@ class ChatMessage extends StatelessWidget {
                 margin: const EdgeInsets.only(right: 4.0),
                 child: new CircleAvatar(child: new Text(_name[0]))),
             //Name + Message Column
-            new Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                //Name Text
-                new Text(
-                  _name,
-                  style: Theme.of(context).textTheme.subhead,
-                ),
-                //Message Text
-                new Container(
-                    width: MediaQuery.of(context).size.width * 0.8,
-                    margin: const EdgeInsets.only(top: 4.0),
-                    child: new Text(
-                      text,
-                      textAlign: TextAlign.left,
-                    ))
-              ],
+            new Expanded(
+
+              child: new Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  //Name Text
+                  new Text(
+                    _name,
+                    style: Theme.of(context).textTheme.subhead,
+                  ),
+                  //Message Text
+                  new Container(
+                      margin: const EdgeInsets.only(top: 4.0),
+                      child: new Text(
+                        text
+                      ))
+                ],
+              ),
             )
           ],
         )
