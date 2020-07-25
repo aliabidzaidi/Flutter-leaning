@@ -46,3 +46,11 @@ class CartModel extends ChangeNotifier {
     notifyListeners();
   }
 }
+
+class CartItem{
+  int id;
+  String name;
+  int quantity;
+
+  CartItem(this.id, this.name, this.quantity);
+}
